@@ -15,7 +15,8 @@ class ExcelComparator:
                 cell_value1 = df1.iloc[row_index, col_index]
                 cell_value2 = df2.iloc[row_index, col_index]
                 if cell_value1 != cell_value2:
-                    differences[(row_index, col_index)] = (cell_value1, cell_value2)
+                    col_name = df1.columns[col_index]
+                    differences[(row_index, col_index)] = (col_name, cell_value1, cell_value2)
 
         return differences
 
@@ -44,6 +45,6 @@ if __name__ == "__main__":
         for sheet, differences in result.items():
             print(f"- Sheet '{sheet}':")
             for cell, values in differences.items():
-                print(f"  - Cell {cell}: Values {values[0]} != {values[1]}")
+                print(f"  - Cell {cell}: Column '{values[0]}', Values {values[1]} != {values[2]}")
     else:
         print("No differences found.")
