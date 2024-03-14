@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 class ExcelComparator:
     def __init__(self, workbook1, workbook2):
@@ -24,7 +25,7 @@ class ExcelComparator:
                 else:
                     cell_value2 = None
 
-                if cell_value1 != cell_value2:
+                if cell_value1 != cell_value2 and not (pd.isna(cell_value1) and pd.isna(cell_value2)):
                     col_name = df1.columns[col_index] if col_index < len(df1.columns) else df2.columns[col_index]
                     differences[(row_index, col_index)] = (col_name, cell_value1, cell_value2)
 
