@@ -81,16 +81,48 @@ class ExcelComparator:
                         categorized_differences.setdefault("Text Edits", []).append((category, cell, values))
 
         return categorized_differences
+    
+    def generate_html_report(self, result, output_file):
+        with open(output_file, 'w') as f:
+            f.write('<html>')
+            f.write('<head>')
+            f.write('<title>Excel Comparator Report</title>')
+            f.write('</head>')
+            f.write('<body>')
+            f.write('<h1>Differences found:</h1>')
+            
+            for category, differences in result.items():
+                f.write(f'<h2>{category}:</h2>')
+                if category == "Missing Sheets":
+                    f.write('<ul>')
+                    for sheet in differences:
+                        f.write(f'<li>Missing Sheet: {sheet}</li>')
+                    f.write('</ul>')
+                else:
+                    f.write('<table border="1">')
+                    f.write('<tr><th>Sheet</th><th>Cell</th><th>Column</th><th>Values</th></tr>')
+                    for sheet, cell, values in differences:
+                        f.write(f'<tr><td>{sheet}</td><td>{cell}</td><td>{values[0]}</td><td>{values[1]} != {values[2]}</td></tr>')
+                    f.write('</table>')
+            
+            f.write('</body>')
+            f.write('</html>')
+
 
 if __name__ == "__main__":
     workbook1_path = "workbook1.xlsx"
     workbook2_path = "workbook2.xlsx"
+    output_file = "comparison_report.html"
 
     comparator = ExcelComparator(workbook1_path, workbook2_path)
     result = comparator.compare_workbooks()
 
     if result:
         print("Differences found:")
+
+        comparator.generate_html_report(result, output_file)
+        print(f"HTML report generated: {output_file}")
+
         for category, differences in result.items():
             print(f"- {category}:")
             if category == "Missing Sheets":
