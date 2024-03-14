@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 class ExcelComparator:
     def __init__(self, workbook1, workbook2):
@@ -82,17 +83,21 @@ class ExcelComparator:
 
         return categorized_differences
     
-    def generate_html_report(self, result, output_file):
+    def generate_html_report(self, result, output_file, workbook1_name, workbook2_name):
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        output_file = f"comparison_report_{current_time}.html"
+
         with open(output_file, 'w') as f:
             f.write('<html>')
             f.write('<head>')
-            f.write('<title>Excel Comparator Report</title>')
+            f.write(f'<title>Excel Comparator Report - {workbook1_name} vs {workbook2_name}</title>')
             f.write('</head>')
             f.write('<body>')
-            f.write('<h1>Differences found:</h1>')
+            f.write(f'<h1>Comparison Report: {workbook1_name} vs {workbook2_name}</h1>')
+            f.write('<h2>Differences found:</h2>')
             
             for category, differences in result.items():
-                f.write(f'<h2>{category}:</h2>')
+                f.write(f'<h3>{category}:</h3>')
                 if category == "Missing Sheets":
                     f.write('<ul>')
                     for sheet in differences:
@@ -110,17 +115,19 @@ class ExcelComparator:
 
 
 if __name__ == "__main__":
-    workbook1_path = "workbook1.xlsx"
+    workbook1_path  = "workbook1.xlsx"
     workbook2_path = "workbook2.xlsx"
-    output_file = "comparison_report.html"
+    workbook1_name = "Workbook 1"
+    workbook2_name = "Workbook 2"
 
     comparator = ExcelComparator(workbook1_path, workbook2_path)
     result = comparator.compare_workbooks()
 
     if result:
+        
         print("Differences found:")
-
-        comparator.generate_html_report(result, output_file)
+        
+        output_file = comparator.generate_html_report(result, None, workbook1_name, workbook2_name)
         print(f"HTML report generated: {output_file}")
 
         for category, differences in result.items():
