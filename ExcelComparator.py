@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
+import os
 
 class ExcelComparator:
     def __init__(self, workbook1, workbook2):
@@ -117,16 +118,16 @@ class ExcelComparator:
 if __name__ == "__main__":
     workbook1_path  = "workbook1.xlsx"
     workbook2_path = "workbook2.xlsx"
-    workbook1_name = "Workbook 1"
-    workbook2_name = "Workbook 2"
+
+    # Extracting file names without extensions
+    workbook1_name = os.path.splitext(os.path.basename(workbook1_path))[0]
+    workbook2_name = os.path.splitext(os.path.basename(workbook2_path))[0]
 
     comparator = ExcelComparator(workbook1_path, workbook2_path)
     result = comparator.compare_workbooks()
 
     if result:
-        
         print("Differences found:")
-        
         output_file = comparator.generate_html_report(result, None, workbook1_name, workbook2_name)
         print(f"HTML report generated: {output_file}")
 
