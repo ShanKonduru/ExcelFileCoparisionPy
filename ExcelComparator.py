@@ -11,7 +11,7 @@ class ExcelComparator:
         self.performance_metrics = PerformanceMetrics()
 
     def compare_sheets(self, sheet_name, truncate_float=False, decimal_places=2):
-        self.performance_metrics.start(token="compare_sheets")
+        self.performance_metrics.start(token="compare_sheets:" + sheet_name)
         df1 = pd.read_excel(self.workbook1, sheet_name=sheet_name)
         df2 = pd.read_excel(self.workbook2, sheet_name=sheet_name)
 
@@ -47,7 +47,7 @@ class ExcelComparator:
         for col_name in missing_columns2:
             differences[(None, df1.columns.get_loc(col_name))] = (col_name, "Missing Column", None)
 
-        self.performance_metrics.stop(token="compare_sheets")
+        self.performance_metrics.stop(token="compare_sheets:" + sheet_name)
         return differences
 
     def compare_workbooks(self):
