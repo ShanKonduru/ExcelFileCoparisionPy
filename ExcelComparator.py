@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import os
+from PerformanceMetrics import PerformanceMetrics
 
 class ExcelComparator:
     def __init__(self, workbook1, workbook2):
@@ -9,6 +10,7 @@ class ExcelComparator:
         self.workbook2 = workbook2
 
     def compare_sheets(self, sheet_name, truncate_float=False, decimal_places=2):
+        PerformanceMetrics.start("compare_sheets")
         df1 = pd.read_excel(self.workbook1, sheet_name=sheet_name)
         df2 = pd.read_excel(self.workbook2, sheet_name=sheet_name)
 
@@ -44,6 +46,7 @@ class ExcelComparator:
         for col_name in missing_columns2:
             differences[(None, df1.columns.get_loc(col_name))] = (col_name, "Missing Column", None)
 
+        PerformanceMetrics.stop("compare_sheets")
         return differences
 
     def compare_workbooks(self):
@@ -65,7 +68,7 @@ class ExcelComparator:
         common_sheets = set(workbook1_sheets).intersection(workbook2_sheets)
 
         for sheet in common_sheets:
-            differences = self.compare_sheets(sheet, truncate_float=True, decimal_places=2)
+            differences = self.compare_sheets(sheet, truncate_float=True, decimal_places=10)
             if differences:
                 all_differences[sheet] = differences
 
@@ -117,20 +120,26 @@ class ExcelComparator:
             
             f.write('</body>')
             f.write('</html>')
+            
+        return output_file
 
 
 if __name__ == "__main__":
-    workbook1_path  = "workbook1.xlsx"
-    workbook2_path = "workbook2.xlsx"
+    PerformanceMetrics.start("overall_progam")
+    workbook1_path  = "cpkc_2dc036dae3b0429fb2406d634584aab1.xlsx"
+    workbook2_path = "cpkc_2dc036dae3b0429fb2406d634584bba2.xlsx"
 
     # Extracting file names without extensions
     workbook1_name = os.path.splitext(os.path.basename(workbook1_path))[0]
     workbook2_name = os.path.splitext(os.path.basename(workbook2_path))[0]
 
+    PerformanceMetrics.start("compare_workbooks")
     comparator = ExcelComparator(workbook1_path, workbook2_path)
     result = comparator.compare_workbooks()
+    PerformanceMetrics.stop("compare_workbooks")
 
     if result:
+        PerformanceMetrics.start("generate_report")
         print("Differences found:")
         output_file = comparator.generate_html_report(result, None, workbook1_name, workbook2_name)
         print(f"HTML report generated: {output_file}")
@@ -143,5 +152,8 @@ if __name__ == "__main__":
             else:
                 for sheet, cell, values in differences:
                     print(f"  - Sheet '{sheet}': Cell {cell}: Column '{values[0]}', Values {values[1]} != {values[2]}")
+        PerformanceMetrics.stop("generate_report")
     else:
         print("No differences found.")
+        
+    PerformanceMetrics.stop("overall_progam")
