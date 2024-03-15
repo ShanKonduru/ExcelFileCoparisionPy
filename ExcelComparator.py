@@ -8,7 +8,7 @@ class ExcelComparator:
         self.workbook1 = workbook1
         self.workbook2 = workbook2
 
-    def compare_sheets(self, sheet_name):
+    def compare_sheets(self, sheet_name, truncate_float=False, decimal_places=2):
         df1 = pd.read_excel(self.workbook1, sheet_name=sheet_name)
         df2 = pd.read_excel(self.workbook2, sheet_name=sheet_name)
 
@@ -27,6 +27,10 @@ class ExcelComparator:
                     cell_value2 = df2.iloc[row_index, col_index]
                 else:
                     cell_value2 = None
+
+                if truncate_float and isinstance(cell_value1, float) and isinstance(cell_value2, float):
+                    cell_value1 = round(cell_value1, decimal_places)
+                    cell_value2 = round(cell_value2, decimal_places)
 
                 if cell_value1 != cell_value2 and not (pd.isna(cell_value1) and pd.isna(cell_value2)):
                     col_name = df1.columns[col_index] if col_index < len(df1.columns) else df2.columns[col_index]
@@ -61,7 +65,7 @@ class ExcelComparator:
         common_sheets = set(workbook1_sheets).intersection(workbook2_sheets)
 
         for sheet in common_sheets:
-            differences = self.compare_sheets(sheet)
+            differences = self.compare_sheets(sheet, truncate_float=True, decimal_places=2)
             if differences:
                 all_differences[sheet] = differences
 
